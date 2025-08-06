@@ -18,18 +18,16 @@ const chart = lightningChart({
             resourcesBaseUrl: new URL(document.head.baseURI).origin + new URL(document.head.baseURI).pathname + 'resources/',
         })
     .ChartXY({
+        legend: { visible: false },
         theme: Themes[new URLSearchParams(window.location.search).get('theme') || 'darkGold'] || undefined,
     })
     .setTitle('ECG')
 
 // Create line series optimized for regular progressive X data.
 const series = chart
-    .addPointLineAreaSeries({
-        dataPattern: 'ProgressiveX',
-    })
+    .addLineSeries({ schema: { x: { pattern: 'progressive' }, y: { pattern: null } } })
     .setName()
     .setMaxSampleCount(100_000)
-    .setAreaFillStyle(emptyFill)
 
 // Setup view nicely.
 chart
@@ -43,7 +41,7 @@ chart
     .getDefaultAxisX()
     .setTitle('milliseconds')
     .setDefaultInterval((state) => ({ end: state.dataMax, start: (state.dataMax ?? 0) - 2500, stopAxisAfter: false }))
-    .setScrollStrategy(AxisScrollStrategies.progressive)
+    .setScrollStrategy(AxisScrollStrategies.scrolling)
 
 // Points that are used to generate a continuous stream of data.
 const point = [
