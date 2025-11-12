@@ -1,0 +1,8 @@
+/**
+ * stacking-order by Rich Harris
+ * https://github.com/Rich-Harris/stacking-order
+ *
+ * @license MIT
+ *
+ * Converted to TypeScript and edited to match LCJS requirements.
+ */
