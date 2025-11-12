@@ -4,14 +4,8 @@
 // Import LightningChartJS
 const lcjs = require('@lightningchart/lcjs')
 
-// Import xydata
-const xydata = require('@lightningchart/xydata')
-
 // Extract required parts from LightningChartJS.
 const { lightningChart, AxisScrollStrategies, emptyFill, Themes } = lcjs
-
-// Import data-generators from 'xydata'-library.
-const { createSampledDataGenerator } = xydata
 
 // Create a XY Chart.
 const chart = lightningChart({
@@ -1632,16 +1626,21 @@ const point = [
     { x: 1586, y: 94 },
     { x: 1587, y: 82 },
 ]
-// Create a data generator to supply a continuous stream of data.
-createSampledDataGenerator(point, 1, 10)
-    .setSamplingFrequency(1)
-    .setInputData(point)
-    .generate()
-    .setStreamBatchSize(48)
-    .setStreamInterval(50)
-    .setStreamRepeat(true)
-    .toStream()
-    .forEach((point) => {
-        // Push the created points to the series.
-        series.appendSample({ x: point.timestamp, y: point.data.y })
+
+let i = 0
+let prev = performance.now()
+const stream = () => {
+    const now = performance.now()
+    const delta = Math.min(now - prev, 1000)
+    prev = now
+    const pCount = Math.round((1000 * delta) / 1000)
+    const points = new Array(pCount).fill(0).map((_, ii) => {
+        const sample = point[(i + ii) % point.length]
+        sample.x = i + ii
+        return sample
     })
+    i += pCount
+    series.appendJSON(points)
+    requestAnimationFrame(stream)
+}
+stream()
